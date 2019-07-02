@@ -81,7 +81,7 @@
     }
 
     function show_app() {
-        echo '<h2>Wahl einsehen</h2>';
+        echo '<h2 class="mt-4">Wahl einsehen</h2>';
         echo 'Chance bezeichnet die Wahrscheinlichkeit, mit der jeweiligen Wahl in eine Projektgruppe zu kommen. Es ist zu beachten, dass sich diese Chancen noch ändern können.';
         echo '<table class="table">
         <thead>
@@ -104,7 +104,7 @@
 
         mysqli_select_db($con,"test") or die( "Fehler : Keine Verbindung." );
 
-        $query='SELECT titel, id, lim FROM `projektgruppen` WHERE 1;';
+        $query='SELECT titel, id, lim FROM `projektgruppen` WHERE 1 ORDER BY titel;';
 
         $result=$con->query($query) or die("Fehler : Projektgruppen konnten nicht gelesen werden.");
 
@@ -132,7 +132,7 @@
     }
 
     function show_ein($nope=false) {
-        echo '<h2>Einteilung einsehen</h2>';
+        echo '<h2 class="mt-4">Einteilung einsehen</h2>';
         $val=deadline();
 
         if ($val and !$nope) {
@@ -224,7 +224,7 @@
           </div>
           <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
             <div class="card-body" id="klassen2">';
-        $query='SELECT titel, id FROM `projektgruppen` WHERE 1;';
+        $query='SELECT titel, id FROM `projektgruppen` WHERE 1 ORDER BY titel;';
         $result=$con->query($query) or die("Fehler : Titel konnte nicht gelesen werden.");
         $arr=[];
         for ($i=0; $i < $result->num_rows; $i++) {
@@ -275,7 +275,7 @@
         mysqli_close($con);
     }
     function reshow($param) {
-        echo '<h2>Seite aktualisieren</h2>
+        echo '<h2 class="mt-4">Seite aktualisieren</h2>
         <form id="reshow" method="post" action="'.$param.'">
         <button type="submit" class="btn btn-secondary" name="reshow">Aktualisieren</button>
         </form>';

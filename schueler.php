@@ -156,7 +156,7 @@
 
                                     mysqli_select_db($con,"test") or die( "Fehler : Keine Verbindung." );
 
-                                    $query='SELECT * FROM `projektgruppen` WHERE 1;';
+                                    $query='SELECT * FROM `projektgruppen` WHERE 1 ORDER BY titel;';
 
                                     $result=$con->query($query) or die("Fehler : Projektgruppen konnten nicht gelesen werden.");
 

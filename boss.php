@@ -36,27 +36,30 @@
                                     return $n1.".".$n2.".".date("Y");
                                 }
                                 function show_login() {
-                                    echo '<h2>Einloggen</h2>
+                                    echo '<h2 class="mt-4">Einloggen</h2>
                                     <form id="login" method="post" action="">
                                     <label for="pword">Passwort : </label>
                                     <input type="password" name="pword" id="pword" placeholder="Passwort" required><br>
                                     <button type="submit" class="btn btn-secondary" name="login">Einloggen</button>
                                     </form>';
                                 }
+
                                 function show_calc() {
-                                    echo '<h2>Einteilung berechnen</h2><form id="calc" method="post" action="">
-                                    <button type="submit" class="btn btn-secondary" name="calc">Berechnen</button>
+                                    echo '<h2 class="mt-4">Einteilung berechnen</h2><form id="calc" method="post" action="">
+                                    <button type="submit" class="btn btn-primary" name="calc">Berechnen</button>
                                     </form>';
                                 }
+
                                 function show_switch() {
-                                    echo '<h2>Schüler tauschen</h2><form id="switch" method="post" action="">
+                                    echo '<h2 class="mt-4">Schüler tauschen</h2><form id="switch" method="post" action="">
                                     <label for="s1">1. Schüler : </label>
-                                    <input type="form-control" name="s1" id="s1" placeholder="Max Mustermann" required><br>
+                                    <input type="form-control" name="s1" id="s1" placeholder="Max Mustermann" required><label for="k1" class="mx-1">Klasse : </label><input type="form-control" name="k1" id="k1" placeholder="EF"><br>
                                     <label for="s2">2. Schüler : </label>
-                                    <input type="form-control" name="s2" id="s2" placeholder="Maja Mustermann" required><br>
+                                    <input type="form-control" name="s2" id="s2" placeholder="Maja Mustermann" required><label for="k2" class="mx-1">Klasse : </label><input type="form-control" name="k2" id="k2" placeholder="Q1"><br>
                                     <button type="submit" class="btn btn-secondary" id="switch" name="switch">Tauschen</button>
                                     </form>';
                                 }
+
                                 function show_line() {
                                     $con = mysqli_connect('localhost', "root", "", "test") or die( "Fehler : Keine Verbindung." );
 
@@ -70,14 +73,15 @@
                                     $row=$result->fetch_assoc()["datum"];
                                     mysqli_close($con);
                                     $date=explode(".",$row);
-                                    echo '<h2>Deadline festlegen</h2><form id="create" method="post" action="">
+                                    echo '<h2 class="mt-4">Deadline festlegen</h2><form id="create" method="post" action="">
                                     <label for="day">Datum : </label>
                                     <input type="number" min="1" max="31" id="day" value="'.$date[0].'"  name="day" required><input type="number" min="1" max="12" id="month" name="month" value="'.$date[1].'" required>
                                     <button type="submit" class="btn btn-secondary" name="line">Setzen</button>
                                     </form>';
                                 }
+
                                 function show_pro() {
-                                    echo '<h2>Projektgruppe erstellen</h2>
+                                    echo '<h2 class="mt-4">Projektgruppe erstellen</h2>
                                             <form id="create" method="post" action="">
                                             <label for="titel">Titel : </label>
                                             <input type="form-control" name="titel" id="titel" placeholder="Mustergruppe" required><br>
@@ -86,9 +90,77 @@
                                             <label for="leader">Leiter : </label>
                                             <input type="form-control" name="leader" id="leader" required placeholder="Herr Mustermann"><br>
                                             <label for="descri">Beschreibung : </label>
-                                            <textarea class="form-control" required type="form-control" name="descri" id="descri2" rows="10" placeholder="Musterhafte Muster mustern."></textarea><br>
-                                            <button type="submit" class="btn btn-secondary" name="create">Erstellen</button>
+                                            <textarea class="form-control mb-2" required type="form-control" name="descri" id="descri2" rows="10" placeholder="Musterhafte Muster mustern."></textarea>
+                                            <button type="submit" class="btn btn-success" name="create">Erstellen</button>
                                             </form>';
+                                }
+
+                                function show_edit($opts) {
+                                    $table="projektgruppen";
+
+                                    $con = mysqli_connect('localhost', "root", "", "test") or die( "Fehler : Keine Verbindung." );
+
+                                    mysqli_select_db($con,"test") or die( "Fehler : Keine Verbindung." );
+
+                                    $query='SELECT * FROM `projektgruppen` WHERE 1 ORDER BY titel;';
+
+                                    $result=$con->query($query) or die("Fehler : Projektgruppen konnten nicht gelesen werden.");
+
+                                    mysqli_close($con);
+
+                                    if ($result == false) {
+                                        return;
+                                    }
+
+                                    echo '<script>
+                                    pgs=';
+                                    echo json_encode($result->fetch_all(MYSQLI_ASSOC));
+                                    echo ';
+                                    function selected() {
+                                        let titel=document.getElementById("select_titel_edit").value;
+                                        if (titel === "") {
+                                            document.getElementById("hide_edit").style="display:none;";
+                                            return;
+                                        }
+                                        for (let pg of pgs) {
+                                            if (pg.titel === titel) {
+                                                document.getElementById("hide_edit").style="display:block;";
+                                                document.getElementById("pg_id").value=pg.id;
+                                                document.getElementById("edit_titel").value=titel;
+                                                document.getElementById("edit_limit").value=pg.lim;
+                                                document.getElementById("edit_leader").value=pg.leiter;
+                                                document.getElementById("edit_descri").value=pg.beschreibung;
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    </script>';
+                                    echo '<h2 class="mt-4">Projektgruppe bearbeiten</h2>
+                                            <form id="edit" method="post" action="">
+                                            <label for="select_titel_edit">Alter Titel : </label>
+                                            <select class="form-control mb-2" style="max-width: 17rem;" id="select_titel_edit" onchange="selected();" required><option></option>'.$opts.'</select>
+                                            <div id="hide_edit" style="display:none;">
+                                            <label for="edit_titel">Neuer Titel : </label>
+                                            <input type="form-control" name="titel" id="edit_titel" required placeholder="Mustergruppe"><br>
+                                            <label for="limit">Neues Limit : </label>
+                                            <input type="number" min="5" max="200" id="edit_limit" value="30" name="limit" required><br>
+                                            <label for="leader">Neue Leiter : </label>
+                                            <input type="form-control" name="leader" id="edit_leader" required placeholder="Herr Mustermann"><br>
+                                            <label for="descri">Neue Beschreibung : </label>
+                                            <textarea class="form-control mb-2" required type="form-control" name="descri" id="edit_descri" rows="10" placeholder="Musterhafte Muster mustern."></textarea>
+                                            <button type="submit" class="btn btn-primary" name="edit">Bearbeiten</button>
+                                            </div>
+                                            <input type="hidden" name="pg_id" id="pg_id">
+                                            </form>';
+                                }
+
+                                function show_delete($opts) {
+                                    echo '<h2 class="mt-4">Projektgruppen entfernen</h2><form id="delete" method="post" action="">
+                                    <b>Nach Entfernen einer Projektgruppe müssen Schüler, die diese gewählt haben, neu wählen. Ebenfalls müssen Schüler, die in dieser Projektgruppe eingeteilt waren, neu eingeteilt werden.</b><br>
+                                    <label for="dele">Projektgruppe : </label>
+                                    <select class="form-control mb-2" style="max-width: 17rem" name="del" id="dele" required><option></option>'.$opts.'</select>
+                                    <button type="submit" class="btn btn-warning mr-2" name="delete">Entfernen</button><button type="submit" class="btn btn-danger" name="deleteall">Alle entfernen</button>
+                                    </form>';
                                 }
 
                                 function pro() {
@@ -98,7 +170,7 @@
 
                                     mysqli_select_db($con,"test") or die( "Fehler : Keine Verbindung." );
 
-                                    $query='SELECT * FROM `projektgruppen` WHERE 1;';
+                                    $query='SELECT * FROM `projektgruppen` WHERE 1 ORDER BY titel;';
 
                                     $result=$con->query($query) or die("Fehler : Projektgruppen konnten nicht gelesen werden.");
 
@@ -135,21 +207,18 @@
                                 }
 
                                 function mng_pro() {
-                                    echo '<h2>Projektgruppen einsehen</h2>';
+                                    echo '<h2 class="mt-4">Projektgruppen einsehen</h2>';
                                     $opts=pro();
+                                    show_edit($opts);
+                                    show_delete($opts);
                                     show_app();
-                                    echo '<h2>Projektgruppen entfernen</h2><form id="delete" method="post" action="">
-                                    <b>Nach Entfernen einer Projektgruppe müssen Schüler, die diese gewählt haben, neu wählen. Ebenfalls müssen Schüler, die in dieser Projektgruppe eingeteilt waren, neu eingeteilt werden.</b><br>
-                                    <label for="dele">Projektgruppe : </label>
-                                    <select class="form-control" name="del" id="dele" required><option></option>'.$opts.'</select><br>
-                                    <button type="submit" class="btn btn-secondary" name="delete">Entfernen</button><a>   </a><button type="submit" class="btn btn-secondary" name="deleteall">Alle entfernen</button>
-                                    </form>';
                                     show_line();
                                     show_ein(true);
                                     show_calc();
                                     show_switch();
                                     reshow("");
                                 }
+
                                 function delete_id($i) {
                                     $con = mysqli_connect('localhost', "root", "", "test") or die( "Fehler : Keine Verbindung." );
 
@@ -220,7 +289,7 @@
                                     }
                                 }
                                 elseif (isset($_POST["create"])) {
-                                    if (empty($_POST["titel"]) or empty($_POST["descri"]) or empty($_POST["leader"])) {
+                                    if (empty($_POST["titel"]) or empty($_POST["descri"]) or empty($_POST["leader"]) or empty($_POST["limit"])) {
                                         error_msg("Bitte füllen sie alle Felder aus.");
                                         show_pro();
                                         mng_pro();
@@ -238,6 +307,30 @@
                                         mysqli_close($con);
 
                                         success_msg("Die Projektgruppe ".$_POST["titel"]." wurde erfolgreich erstellt.");
+
+                                        show_pro();
+                                        mng_pro();
+                                    }
+                                }
+                                elseif (isset($_POST["edit"])) {
+                                    if (empty($_POST["titel"]) or empty($_POST["descri"]) or empty($_POST["leader"]) or empty($_POST["limit"]) or empty($_POST["pg_id"])) {
+                                        error_msg("Bitte füllen sie alle Felder aus.");
+                                        show_pro();
+                                        mng_pro();
+                                    }
+                                    else {
+
+                                        $con = mysqli_connect('localhost', "root", "", "test") or die( "Fehler : Keine Verbindung." );
+
+                                        mysqli_select_db($con,"test") or die( "Fehler : Keine Verbindung." );
+
+                                        $query='UPDATE `projektgruppen` SET titel="'.$_POST["titel"].'", lim='.$_POST["limit"].', leiter="'.$_POST["leader"].'", beschreibung="'.$_POST["descri"].'" WHERE id='.$_POST["pg_id"].';';
+
+                                        $result=$con->query($query) or die("Fehler : Projektgruppe konnte nicht bearbeitet werden.");
+
+                                        mysqli_close($con);
+
+                                        success_msg("Die Projektgruppe ".$_POST["titel"]." wurde erfolgreich bearbeitet.");
 
                                         show_pro();
                                         mng_pro();
@@ -284,22 +377,6 @@
 
                                     mysqli_select_db($con,"test") or die( "Fehler : Keine Verbindung." );
 
-                                    /*$query="SELECT id FROM `projektgruppen` WHERE 1;";
-
-                                    $rid=$con->query($query) or die("Fehler : Projektgruppen IDs konnten nicht gelesen werden.");
-                                    for ($z=0; $z < $rid->num_rows; $z++) {
-                                        $rid->data_seek($z);
-                                        $id=$rid->fetch_array()[0];
-
-                                        $query='DELETE FROM `wahl` WHERE wahl1_id='.$id.' OR wahl2_id='.$id.' OR wahl3_id='.$id.' OR wahl4_id='.$id.' OR wahl5_id='.$id.';';
-
-                                        $result=$con->query($query) or die("Fehler : Wahlen konnten nicht gelöscht werden.");
-
-                                        $query='DELETE FROM `einteilung` WHERE pg_id='.$id.';';
-
-                                        $result=$con->query($query) or die("Fehler : Einteilungen konnten nicht gelöscht werden.");
-                                    */
-
                                     $query="DELETE FROM `projektgruppen` WHERE 1;";
 
                                     $result=$con->query($query) or die("Fehler : Projektgruppen konnten nicht gelöscht werden.");
@@ -322,55 +399,51 @@
 
                                     mysqli_select_db($con,"test") or die( "Fehler : Keine Verbindung." );
 
-                                    $query='SELECT s_id from `schueler` WHERE s_name="'.$_POST["s1"].'";';
+                                    $s_ids=[0,0];
+                                    $pg_ids=[0,0];
+                                    for ($s=0; $s <=1; $s++) {
+                                        $klasse=NULL;
+                                        if (array_key_exists("k".($s+1), $_POST)) {
+                                            $klasse=$_POST["k".($s+1)];
+                                        }
 
-                                    $result=$con->query($query) or die("Fehler : Schüler konnten nicht gelesen werden.");
+                                        $query='SELECT s_id from `schueler` WHERE s_name="'.$_POST["s".($s+1)].'"';
 
-                                    if ($result->num_rows == 0) {
-                                        error_msg("Es gibt keinen Schüler mit dem Namen ".$_POST["s1"].".");
-                                    }
-                                    else {
-                                        $s1_id=$result->fetch_array()[0];
-
-                                        $query='SELECT s_id from `schueler` WHERE s_name="'.$_POST["s2"].'";';
+                                        if (!empty($klasse)) {
+                                            $query.=' AND s_klasse="'.$_POST["k".($s+1)].'"';
+                                        }
+                                        $query.=";";
 
                                         $result=$con->query($query) or die("Fehler : Schüler konnten nicht gelesen werden.");
 
                                         if ($result->num_rows == 0) {
-                                            error_msg("Es gibt keinen Schüler mit dem Namen ".$_POST["s2"].".");
+                                            error_msg("Es gibt keinen Schüler mit dem Namen ".$_POST["s1"].(!empty($klasse) ? " in der Klasse ".$klasse:"").".");
+                                            break;
                                         }
-                                        else {
-                                            $s2_id=$result->fetch_array()[0];
-
-                                            $query='SELECT pg_id from `einteilung` WHERE s_id='.$s2_id.';';
-
-                                            $result=$con->query($query) or die("Fehler : pg_id konnte nicht gelesen werden.");
-
-                                            if ($result->num_rows == 0) {
-                                                error_msg("Der Schüler mit dem Namen ".$_POST["s2"]." ist noch nicht eingeteilt.");
-                                            }
-                                            else {
-                                                $s2_val=$result->fetch_array()[0];
-
-                                                $query='SELECT pg_id from `einteilung` WHERE s_id='.$s1_id.';';
-
-                                                $result=$con->query($query) or die("Fehler : pg_id konnte nicht gelesen werden.");
-
-                                                if ($result->num_rows == 0) {
-                                                    error_msg("Der Schüler mit dem Namen ".$_POST["s1"]." ist noch nicht eingeteilt.");
-                                                }
-                                                else {
-                                                    $s1_val=$result->fetch_array()[0];
-                                                    $query='UPDATE `einteilung` SET `pg_id`='.$s2_val.' WHERE s_id='.$s1_id.';';
-                                                    $con->query($query) or die("Fehler : Update Query 1 gescheitert.");
-                                                    $query='UPDATE `einteilung` SET `pg_id`='.$s1_val.' WHERE s_id='.$s2_id.';';
-                                                    $con->query($query) or die("Fehler : Update Query 2 gescheitert.");
-                                                    success_msg("Die Schüler ".$_POST["s1"]." und ".$_POST["s2"]." wurden erfolgreich vertauscht.");
-                                                }
-                                            }
-                                            //SWAP 'EM
+                                        elseif ($result->num_rows > 1) {
+                                            error_msg("Es gibt mehrere Schüler mit dem Namen ".$_POST["s1"].". Bitte geben sie zusätzlich noch die Klasse an.");
+                                            break;
                                         }
+
+                                        $s_ids[$s]=$result->fetch_array()[0];
+
+                                        $query='SELECT pg_id from `einteilung` WHERE s_id='.$s_ids[$s].';';
+
+                                        $result=$con->query($query) or die("Fehler : pg_id konnte nicht gelesen werden.");
+
+                                        if ($result->num_rows == 0) {
+                                            error_msg("Der Schüler mit dem Namen ".$_POST["s".($s+1)]." ist noch nicht eingeteilt.");
+                                        }
+
+                                        $pg_ids[$s]=$result->fetch_array()[0];
                                     }
+
+                                    $query='UPDATE `einteilung` SET `pg_id`='.$pg_ids[1].' WHERE s_id='.$s_ids[0].';'; // Erster Schüler bekommt PG vom Zweiten
+                                    $con->query($query) or die("Fehler : Update Query 1 gescheitert.");
+                                    $query='UPDATE `einteilung` SET `pg_id`='.$pg_ids[0].' WHERE s_id='.$s_ids[1].';'; // Zweiter Schüler bekommt PG vom Ersten
+                                    $con->query($query) or die("Fehler : Update Query 2 gescheitert.");
+                                    success_msg("Die Schüler ".$_POST["s1"]." und ".$_POST["s2"]." wurden erfolgreich vertauscht.");
+
                                     mysqli_close($con);
                                     show_pro();
                                     mng_pro();
